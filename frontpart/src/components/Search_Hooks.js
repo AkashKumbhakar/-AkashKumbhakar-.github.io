@@ -1,0 +1,108 @@
+import React, { useState } from 'react'
+import axios from 'axios'
+import NavigationBar from './NavigationBar';
+
+function Search() {
+  const [emplist, setEmpList] = useState([]);
+  const [eemail, setEmpEmail] = useState("");
+  const [status, setStatus] = useState(false);
+  const [msg, setMessage] = useState("");
+
+  const onChangeEmpEmail = (e) => {
+    setEmpEmail(e.target.value);
+    setMessage(''); //REMOVE ERROE MSG
+  }
+
+  const handleSubmit = (evt) => {
+    evt.preventDefault();
+
+    axios.get('http://localhost:4500/emp/search/' + eemail)
+      .then(res => {
+        console.log(res.data)
+        setEmpList(res.data)
+        setStatus(true)
+      })
+      .catch(err => {
+        console.log(err)
+        setMessage('INVALID EMAIL ID')
+      })
+
+    setEmpEmail('')
+  }
+
+  function viewEmpList() {
+    return emplist.map((currentrow, index) => {
+      return (
+        <tr key={index}>
+          <td>{currentrow.empname}</td>
+          <td>{currentrow.empemail}</td>
+          <td>{currentrow.empmobile}</td>
+          <td>{currentrow.empdob}</td>
+          <td>{currentrow.empgender}</td>
+          <td>{currentrow.empcountry}</td>
+          <td>{currentrow.empaddress}</td>
+        </tr>
+      );
+    });
+  }
+
+  if (status === false) {
+    return (<div style={{backgroundColor: 'Gainsboro'}}>
+      <NavigationBar />
+      <br />
+      <h3 style={{ color: "blue" }}>ENTER EMAIL ID FOR SEARCH</h3>
+      <b style={{ color: "red" }}>{msg}</b>
+      <form onSubmit={handleSubmit}>
+        <input type="email" value={eemail}
+          onChange={onChangeEmpEmail}
+          placeholder="EMAIL ID"
+          required />
+        <br />
+        <br />
+        <input type="submit" value="SEARCH CUSTOMER" className="btn btn-success" />
+      </form>
+      <br></br>
+    </div>);
+  }
+  else {
+    return (
+      <div style={{backgroundColor: 'Gainsboro'}}>
+        <NavigationBar />
+        <br />
+        <h3 style={{ color: "blue" }}>ENTER EMAIL ID FOR SEARCH</h3><br></br>
+        <b>{msg}</b><br></br>
+        <form onSubmit={handleSubmit}>
+          <input type="email" value={eemail}
+            onChange={onChangeEmpEmail} placeholder="EMAIL ID"
+            required />
+          <br />
+          <br />
+          <input type="submit" value="SEARCH ANOTHER" className="btn btn-success"/>
+        </form>
+        <br /><br />
+        <br></br>
+        <h3>EMPLOYEE DETAILS</h3>
+        <table border="1" align="center">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Mobile</th>
+              <th>DOB</th>
+              <th>Gender</th>
+              <th>Country</th>
+              <th>Address</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {viewEmpList()}
+          </tbody>
+        </table>
+        <br></br>
+      </div>
+    )
+  }
+}
+
+export default Search
